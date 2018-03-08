@@ -406,9 +406,9 @@ class PVANET():
 
     def build_c_relu_block(self, x, kernel, stride, filters_out, to_seperable=False):
         # convolution
-        in_channel = x.shape[-1]
+        self.in_channel = x.shape[-1]
         if to_seperable:
-            conv = get_seperable(x, kernel, stride, filters_out)
+            conv = self.get_seperable(x, kernel, stride, filters_out)
         else:
             x = self._conv(x, kernel=kernel, stride=stride, filters_out=filters_out)
             x = self._bn(x)
@@ -453,12 +453,12 @@ class PVANET():
 
         return x + layer_in
 
-    def get_seperable(x, kernel, stride, filters_out):
+    def get_seperable(self,x, kernel, stride, filters_out):
         filters_in = x.get_shape()[-1]
         assert(kernel > 0 and kernel > 0)
         # FIXME: pad for tensorflow?
         # depthwise
-        x = tf.nn.depthwise_conv2d(x, [kernel, kernel, in_channel, 1], [1, stride, stride, 1], padding='VALID')
+        x = tf.nn.depthwise_conv2d(x, [kernel, kernel, self.in_channel, 1], [1, stride, stride, 1], padding='VALID')
         x = self._bn(x)
         x_shape = x.get_shape()
         params_shape = x_shape[-1:]
